@@ -1,7 +1,8 @@
 //Libraries
 #include <Wire.h>
 #include <DHT.h>
-#include <LiquidCrystal_I2C.h>
+#include <hd44780.h>
+#include <hd44780ioClass/hd44780_I2Cexp.h> // include i/o class header
 
 //Constants
 #define DHTPIN 7        //DHT 1 data pin on arduino pin 7
@@ -10,48 +11,14 @@
 DHT dht(DHTPIN, DHTTYPE);
 DHT dht2(DHTPIN2, DHTTYPE);
 
-//Libraries
-#define I2C_ADDR  0x27
-#define En_pin    2
-#define Rw_pin    1
-#define Rs_pin    0
-#define D4_pin    4
-#define D5_pin    5
-#define D6_pin    6
-#define D7_pin    7
-#define BACKLIGHT_PIN   3
+hd44780_I2Cexp lcd;
 
-LiquidCrystal_I2C lcd(I2C_ADDR, En_pin, Rw_pin, Rs_pin,
-                      D4_pin, D5_pin, D6_pin, D7_pin);
 
 //Variables
 float hum, hum2;  //Stores humidity value
 float temp, temp2; //Stores temperature value
 
-void setup() {
-  Serial.begin(9600);
-  dht.begin();
-  dht2.begin();
-
-  lcd.begin (20, 4);
-
-  // Switch on the backlight
-  lcd.setBacklightPin(BACKLIGHT_PIN, POSITIVE);
-  lcd.setBacklight(HIGH);
-
-  // Position cursor and write some text
-  lcd.home();
-  lcd.print("Hallo!");
-}
-
-void loop() {
-  delay(2000);
-  //Read data and store it to variables hum and temp
-  hum  = dht.readHumidity();
-  temp = dht.readTemperature();
-  hum2  = dht2.readHumidity();
-  temp2 = dht2.readTemperature();
-  //Print temp and humidity values to serial monitor
+void printSerial() {
   Serial.print("Humidity: ");
   Serial.print(hum);
   Serial.print("/");
@@ -61,6 +28,26 @@ void loop() {
   Serial.print("/");
   Serial.print(temp2);
   Serial.println(" Celsius");
+}
+
+void setup() {
+  Serial.begin(9600);
+  dht.begin();
+  dht2.begin();
+
+  lcd.begin(20, 4);
+  lcd.print("DHT Temp Array v0.1");
+}
+
+void loop() {
+  delay(2000);
+  //Read data and store it to variables hum and temp
+  hum  = dht.readHumidity();
+  temp = dht.readTemperature();
+  hum2  = dht2.readHumidity();
+  temp2 = dht2.readTemperature();
+
+  printSerial();
 
   lcd.home();
   lcd.clear();
