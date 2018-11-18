@@ -18,6 +18,41 @@ hd44780_I2Cexp lcd;
 float hum, hum2;  //Stores humidity value
 float temp, temp2; //Stores temperature value
 
+
+void setup() {
+  Serial.begin(9600);
+  dht.begin();
+  dht2.begin();
+
+  lcd.begin(20, 4);
+  lcd.print("DHT Temp Array v0.1");
+
+  lcd.setCursor(0, 1);
+  lcd.print("--------------------");
+
+  for (int i = 0; i < 20; i++) {
+    lcd.setCursor(i, 1);
+    lcd.print("#");
+    delay(50);
+  }
+}
+
+void loop() {
+  readSensors();
+  printSerial();
+  printLcd();
+
+  delay(2000);
+}
+
+void readSensors() {
+  //Read data and store it to variables hum and temp
+  hum  = dht.readHumidity();
+  temp = dht.readTemperature();
+  hum2  = dht2.readHumidity();
+  temp2 = dht2.readTemperature();
+}
+
 void printSerial() {
   Serial.print("Humidity: ");
   Serial.print(hum);
@@ -30,27 +65,11 @@ void printSerial() {
   Serial.println(" Celsius");
 }
 
-void setup() {
-  Serial.begin(9600);
-  dht.begin();
-  dht2.begin();
-
-  lcd.begin(20, 4);
-  lcd.print("DHT Temp Array v0.1");
-}
-
-void loop() {
-  delay(2000);
-  //Read data and store it to variables hum and temp
-  hum  = dht.readHumidity();
-  temp = dht.readTemperature();
-  hum2  = dht2.readHumidity();
-  temp2 = dht2.readTemperature();
-
-  printSerial();
-
+void printLcd() {
   lcd.home();
   lcd.clear();
+
+  //First sensor
   lcd.print("Sensor 1:");
   lcd.setCursor(0, 1);
   lcd.print(temp);
@@ -61,6 +80,7 @@ void loop() {
   lcd.setCursor(14, 1);
   lcd.print("% relF");
 
+  //Second Sensor
   lcd.setCursor(0, 2);
   lcd.print("Sensor 2:");
   lcd.setCursor(0, 3);
@@ -71,6 +91,4 @@ void loop() {
   lcd.print(hum2);
   lcd.setCursor(14, 3);
   lcd.print("% relF");
-
-  delay(10000); //Delay 2 sec.
 }
